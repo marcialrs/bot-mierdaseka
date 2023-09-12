@@ -16,16 +16,16 @@ module.exports = (app) => {
   app.on('push', async context => {
     const branch = context.payload.ref.split('/').pop();
 
-    if (branch !== 'mi-rama') {
+    if (branch !== 'dev') {
         return;
     }
 
     const pr = {
         owner: context.repo.owner,
         repo: context.repo.repo,
-        title: `PR from ${branch} to master`,
+        title: `PR from ${branch} to main`,
         head: branch,
-        base: 'master',
+        base: 'main',
         body: 'Auto-generated PR'
     };
 
