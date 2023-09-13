@@ -16,4 +16,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
         run: |
-          gh pr create --base main --head dev --title "Merge dev into main" --body "Automatic PR from dev push" --repo ${{ github.repository }}
+          gh pr create --base main --head dev --title "Merge dev into main" --body "Automatic PR from dev push" --label "Don't Merge" --repo ${{ github.repository }}
