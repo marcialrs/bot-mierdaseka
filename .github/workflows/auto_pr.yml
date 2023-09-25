@@ -24,7 +24,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
         run: |
           PR_URL=$(gh pr create --base main --head dev --title "Merge dev into main" --body "Automatic PR from dev push" --label "Don't Merge" --repo ${{ github.repository }})
-          run: echo "pr_url=$PR_URL" >> $GITHUB_OUTPUT
+          echo "pr_url=$PR_URL" >> $GITHUB_OUTPUT
         shell: bash
   
       - name: Extract PR Number
@@ -32,7 +32,7 @@ jobs:
         run: |
           PR_URL="${{ steps.create_pr.outputs.pr_url }}"
           PR_NUMBER=$(echo "$PR_URL" | rg -o 'https://github\.com/.+/pull/(\d+)' --replace '$1')
-          run: echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
+          echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
 
         shell: bash
   
