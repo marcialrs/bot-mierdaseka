@@ -40,5 +40,5 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
         run: |
-          PR_NUMBER="${{ steps.extract_pr_number.outputs.pr_number }}"
-          gh pr update $PR_NUMBER --milestone 1
+          PR_NUMBER="${{ steps.create_pr.outputs.pr_number }}"
+          gh pr edit $PR_NUMBER --milestone 1
