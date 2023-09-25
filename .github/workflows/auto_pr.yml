@@ -24,7 +24,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
         run: |
           PR_URL=$(gh pr create --base main --head dev --title "Merge dev into main" --body "Automatic PR from dev push" --label "Don't Merge" --repo ${{ github.repository }})
-          echo "::set-output name=pr_url::$PR_URL"
           run: echo "pr_url=$PR_URL" >> $GITHUB_OUTPUT
         shell: bash
   
