@@ -10,10 +10,13 @@ module.exports = (app) => {
     const issueComment = context.issue({
       body: "Thanks for opening this issue!",
     });
+    app.log.info("writting comment on issue");
     return context.octokit.issues.createComment(issueComment);
   });
 
   app.on('push', async context => {
+    app.log.info("push detected", branch);
+    
     const branch = context.payload.ref.split('/').pop();
 
     if (branch !== 'dev') {
@@ -30,7 +33,7 @@ module.exports = (app) => {
     };
 
     await context.github.pulls.create(pr);
-});
+  });
 
   // For more information on building apps:
   // https://probot.github.io/docs/
