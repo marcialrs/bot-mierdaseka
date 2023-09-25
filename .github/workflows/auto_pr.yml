@@ -21,7 +21,7 @@ jobs:
       - name: Create PR and Get PR URL
         id: create_pr
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+          GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
         run: |
           PR_URL=$(gh pr create --base main --head dev --title "Merge dev into main" --body "Automatic PR from dev push" --label "Don't Merge" --repo ${{ github.repository }})
           echo "::set-output name=pr_url::$PR_URL"
@@ -37,7 +37,7 @@ jobs:
   
       - name: Assign Milestone to PR
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+          GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
         run: |
           PR_NUMBER="${{ steps.extract_pr_number.outputs.pr_number }}"
           gh pr update $PR_NUMBER --milestone 1
