@@ -54,4 +54,4 @@ jobs:
         run: |
           PR_NUMBER="${{ steps.extract_pr_number.outputs.pr_number }}"
           CURRENT_MILESTONE="${{ steps.get_current_milestone.outputs.milestone }}"
-          gh pr edit $PR_NUMBER --milestone CURRENT_MILESTONE
+          gh pr edit $PR_NUMBER --milestone $CURRENT_MILESTONE
