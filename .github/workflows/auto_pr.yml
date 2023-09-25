@@ -12,8 +12,33 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v3
 
-      - name: Create PR
-        env:
-          GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
+      - name: Install ripgrep
         run: |
-          gh pr create --base main --head dev --title "Merge dev into main" --body "Automatic PR from dev push" --label "Don't Merge" --repo ${{ github.repository }}
+          curl -LO https://github.com/BurntSushi/ripgrep/releases/download/13.0.0/ripgrep_13.0.0_amd64.deb
+          sudo dpkg -i ripgrep_13.0.0_amd64.deb
+        shell: bash
+
+      - name: Create PR and Get PR URL
+        id: create_pr
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          PR_URL=$(gh pr create --base main --head dev --title "Merge dev into main" --body "Automatic PR from dev push" --label "Don't Merge" --repo ${{ github.repository }} --json url -q)
+          echo "::set-output name=pr_url::$PR_URL"
+        shell: bash
+  
+      - name: Extract PR Number
+        id: extract_pr_number
+        run: |
+          PR_URL="${{ steps.create_pr.outputs.pr_url }}"
+          PR_NUMBER=$(echo "$PR_URL" | rg -o 'https://github\.com/.+/pull/(\d+)' --replace '$1')
+          echo "::set-output name=pr_number::$PR_NUMBER"
+        shell: bash
+  
+      - name: Assign Milestone to PR
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          PR_NUMBER="${{ steps.extract_pr_number.outputs.pr_number }}"
+          gh pr update $PR_NUMBER --milestone 1
+          
