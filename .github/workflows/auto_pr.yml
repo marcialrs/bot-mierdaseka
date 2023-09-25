@@ -16,7 +16,6 @@ jobs:
         run: |
           curl -LO https://github.com/BurntSushi/ripgrep/releases/download/13.0.0/ripgrep_13.0.0_amd64.deb
           sudo dpkg -i ripgrep_13.0.0_amd64.deb
-        shell: bash
 
       - name: Create PR and Get PR URL
         id: create_pr
@@ -25,7 +24,6 @@ jobs:
         run: |
           PR_URL=$(gh pr create --base main --head dev --title "Merge dev into main" --body "Automatic PR from dev push" --label "Don't Merge" --repo ${{ github.repository }})
           echo "pr_url=$PR_URL" >> $GITHUB_OUTPUT
-        shell: bash
   
       - name: Extract PR Number
         id: extract_pr_number
@@ -33,12 +31,27 @@ jobs:
           PR_URL="${{ steps.create_pr.outputs.pr_url }}"
           PR_NUMBER=$(echo "$PR_URL" | rg -o 'https://github\.com/.+/pull/(\d+)' --replace '$1')
           echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
-
-        shell: bash
   
+      - name: Get current date
+        id: get_current_date
+        run: |
+          CURRENT_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          echo "date=$CURRENT_DATE" >> $GITHUB_OUTPUT
+
+      - name: Get Current Milestone
+        id: get_current_milestone
+        env:
+          GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
+        run: |
+          CURRENT_DATE="${{ steps.get_current_date.outputs.date }}"
+          MILESTONES=$(gh api repos/marcialrs/bot-mierdaseka/milestones --jq 'map({title, due_on})')
+          MILESTONE=$(echo "$MILESTONES" | jq -r "map(select(.due_on > \"$CURRENT_DATE\")) | min_by(.due_on) | .title")
+          echo "milestone=$MILESTONE" >> $GITHUB_OUTPUT
+
       - name: Assign Milestone to PR
         env:
           GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
         run: |
-          PR_NUMBER="${{ steps.create_pr.outputs.pr_number }}"
-          gh pr edit $PR_NUMBER --milestone 1
+          PR_NUMBER="${{ steps.extract_pr_number.outputs.pr_number }}"
+          CURRENT_MILESTONE="${{ steps.get_current_milestone.outputs.milestone }}"
+          gh pr edit $PR_NUMBER --milestone CURRENT_MILESTONE
