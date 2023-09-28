@@ -9,12 +9,18 @@ import subprocess
 load_dotenv()
 
 
-def get_milestone(github_repo: Repository.Repository) -> Milestone:
+def get_milestone(github_repo: Repository.Repository) -> Milestone.Milestone:
     """
     Get current milestone
     """
     now = datetime.now()
     open_milestones = github_repo.get_milestones(state='open')
+
+    # select milestones with date and title only, and sort them by due_on date
+    open_milestones = [milestone for milestone in open_milestones if milestone.due_on and milestone.title]
+    open_milestones.sort(key=lambda milestone: milestone.due_on)
+
+    # return first milestone with date higher than now
     for milestone in open_milestones:
         if milestone.due_on > now:
             return milestone
@@ -82,22 +88,24 @@ def set_milestone_requests(github_repo, pr, milestone):
 
 
 g = Github(os.getenv('REPO_TOKEN'))
-repo = g.get_repo("marcialrs/bot-mierdaseka")
+# repo = g.get_repo("marcialrs/bot-mierdaseka")
+# repo = g.get_repo("Telefonica/baikal-ci-playground")
+repo = g.get_repo("Telefonica/baikal")
 print(repo)
 
 milestone = get_milestone(github_repo=repo)
-print(milestone.title, milestone.number)
+print(milestone)
 
-pr = repo.create_pull(
-    title=f"creada desde python",
-    body=("Si te notas cuatro huevos no te creas superman."),
-    head="head",
-    base="base",
-    draft=False
-)
+# pr = repo.create_pull(
+#     title=f"creada desde python",
+#     body=("Si te notas cuatro huevos no te creas superman."),
+#     head="head",
+#     base="base",
+#     draft=False
+# )
 
-# set_milestone(repo, pr, milestone) # ok
+# # set_milestone(repo, pr, milestone) # ok
 
-set_milestone_plumbum(repo, pr, milestone) # ok
+# set_milestone_plumbum(repo, pr, milestone) # ok
 
-# set_milestone_requests(repo, pr, milestone) # nok
+# # set_milestone_requests(repo, pr, milestone) # nok
